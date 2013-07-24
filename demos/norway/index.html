@@ -13,7 +13,7 @@
 	<script type="text/javascript" src="http://assets.openspending.org/openspendingjs/master/lib/aggregator.js"></script>
 	<link rel="stylesheet" type="text/css" href="../../build/bubbletree.css" />
 	<script type="text/javascript" src="../../styles/cofog.js"></script>
-
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
 	<script type="text/javascript">
 		$(function() {
 			var $tooltip = $('<div class="tooltip">Tooltip</div>');
@@ -53,9 +53,24 @@
 				}
 			}
 
+			var createViz = function(year) {
+				if (year > 1995) {
+					new OpenSpending.Aggregator({
+						apiUrl: 'http://openspending.org/api',
+						dataset: 'norge_offentlig_forvaltning_utgifter_formaal',
+						rootNodeLabel: 'Totalt',
+						drilldowns: ['cofog1', 'cofog2'],
+						cuts: ['year:' + year],
+						breakdown: 'time',
+						// localApiCache: 'aggregate.json',
+						callback: dataLoaded
+					});
+				}
+			}
+
 			var dataLoaded = function(data) {
-				//console.log('dataLoaded', JSON.stringify(data));
-				//console.log(data);
+				$(".bubbletree-wrapper").html("<div class=\"bubbletree\" />")
+				
 				trimData(data);
 
 				window.bubbleTree = new BubbleTree({
@@ -73,30 +88,41 @@
 			};
 
 			// call openspending api for data
-			new OpenSpending.Aggregator({
-				apiUrl: 'http://openspending.org/api',
-				dataset: 'norge_offentlig_forvaltning_utgifter_formaal',
-				rootNodeLabel: 'Totalt',
-				drilldowns: ['cofog1', 'cofog2'],
-				cuts: ['year:2012'],
-				breakdown: 'time',
-				// localApiCache: 'aggregate.json',
-				callback: dataLoaded
+			createViz(2012);
+			$("#slider").slider();
+			
+			$("#slider").slider({
+				max:2012,
+				min:1996,
+				value:2012,
+				slide: function(event, ui) {
+					console.log(ui);
+					$(".currentslide").text(ui.value);
+				},
+				change: function(event, ui) {
+					createViz(ui.value);					
+				}
 			});
-
 
 		});
 
 	</script>
+	<style>
+		.firstyear {position:relative; z-index:1;top:38px;}
+		.endyear {text-align:right;}
+	</style>
 </head>
 <body>
 	<div id="header">
 		<a class="title">OpenSpending</a>
 		<div class="subtitle">Norway Country Analysis</div>
+		<div class="currentslide">2012</div>
+		<div class="firstyear">1996</div>
+		<div id="slider"></div>
+		<div class="endyear">2012</div>
 	</div>
 	<div class="bubbletree-wrapper">
 		<div class="bubbletree"></div>
 	</div>
-
 </body>
 </html>
