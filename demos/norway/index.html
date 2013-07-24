@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8"/>
+	<title>Norway Country Functional Analysis</title>
+	<script type="text/javascript" src="../../lib/jquery-1.5.2.min.js"></script>
+	<script type="text/javascript" src="../../lib/jquery.history.js"></script>
+	<script type="text/javascript" src="../../lib/raphael-min.js"></script>
+	<script type="text/javascript" src="../../lib/vis4.js"></script>
+	<script type="text/javascript" src="../../lib/Tween.js"></script>
+	<script type="text/javascript" src="../../build/bubbletree.js"></script>
+	<script type="text/javascript" src="http://assets.openspending.org/openspendingjs/master/lib/aggregator.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../build/bubbletree.css" />
+	<script type="text/javascript" src="../../styles/cofog.js"></script>
+
+	<script type="text/javascript">
+		$(function() {
+			var $tooltip = $('<div class="tooltip">Tooltip</div>');
+			$('.bubbletree').append($tooltip);
+			$tooltip.hide();
+
+			var tooltip = function(event) {
+				console.log("YOYO");
+				if (event.type == 'SHOW') {
+					// show tooltip
+					console.log(event);
+					$tooltip.css({
+						left: event.mousePos.x + 4,
+						top: event.mousePos.y + 4
+					});
+					$tooltip.html(event.node.label+' <b>'+event.node.amount+'</b>');
+					var bubble = event.target;
+
+					$tooltip.show();
+				} else {
+					// hide tooltip
+					$tooltip.hide();
+				}
+			};
+
+			var trimData = function(data) {
+				for (var i = 0; i < data["children"].length; i++) {
+					if ("cofog1" == data["children"][i]["taxonomy"]) {
+						if (parseInt(data["children"][i]["name"]) < 10) {
+							data["children"][i]["name"] = "0" + data["children"][i]["name"];
+						}
+					} else if ("cofog2" == data["children"][i]["taxonomy"]) {
+						data["children"][i]["name"] = data["children"][i]["name"].replace("-", ".");
+					}
+					if (data["children"][i]["children"].length > 0) {
+						trimData(data["children"][i]);
+					}
+				}
+			}
+
+			var dataLoaded = function(data) {
+				//console.log('dataLoaded', JSON.stringify(data));
+				//console.log(data);
+				trimData(data);
+
+				window.bubbleTree = new BubbleTree({
+					data: data,
+					container: '.bubbletree',
+					bubbleType: 'icon',
+					bubbleStyles: {
+						'cofog1': BubbleTree.Styles.Cofog,
+						'cofog2': BubbleTree.Styles.Cofog
+					},
+					rootPath: '../../',
+					sortBy: 'label',
+					tooltipCallback: tooltip
+				});
+			};
+
+			// call openspending api for data
+			new OpenSpending.Aggregator({
+				apiUrl: 'http://openspending.org/api',
+				dataset: 'norge_offentlig_forvaltning_utgifter_formaal',
+				rootNodeLabel: 'Totalt',
+				drilldowns: ['cofog1', 'cofog2'],
+				cuts: ['year:2012'],
+				breakdown: 'time',
+				// localApiCache: 'aggregate.json',
+				callback: dataLoaded
+			});
+
+
+		});
+
+	</script>
+</head>
+<body>
+	<div id="header">
+		<a class="title">OpenSpending</a>
+		<div class="subtitle">Norway Country Analysis</div>
+	</div>
+	<div class="bubbletree-wrapper">
+		<div class="bubbletree"></div>
+	</div>
+</body>
+</html>
