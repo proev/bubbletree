@@ -3,9 +3,10 @@
 <head>
 	<meta charset="UTF-8"/>
 	<title>Norway Country Functional Analysis</title>
-	<script type="text/javascript" src="../../lib/jquery-1.5.2.min.js"></script>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 	<script type="text/javascript" src="../../lib/jquery.history.js"></script>
-	<script type="text/javascript" src="../../lib/raphael-min.js"></script>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
 	<script type="text/javascript" src="../../lib/vis4.js"></script>
 	<script type="text/javascript" src="../../lib/Tween.js"></script>
 	<script type="text/javascript" src="../../build/bubbletree.js"></script>
@@ -20,7 +21,6 @@
 			$tooltip.hide();
 
 			var tooltip = function(event) {
-				console.log("YOYO");
 				if (event.type == 'SHOW') {
 					// show tooltip
 					console.log(event);
@@ -97,5 +97,6 @@
 	<div class="bubbletree-wrapper">
 		<div class="bubbletree"></div>
 	</div>
+
 </body>
 </html>
